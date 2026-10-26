@@ -42,13 +42,18 @@ is called **Terminal Builder**:
 - Fonts: IBM Plex Sans Arabic and JetBrains Mono.
 - Graphics: keywords appear as `>_` prompts, chapters as `git commit` and the name as `whoami`.
 
-## Requirements
+## Setup
 
-- macOS
-- `ffmpeg`
-- `python3` with `numpy`
-- `whisper-cli` (whisper.cpp), with a model in `montage/models/ggml-*.bin`
-- Node 18+
+```bash
+./setup.sh
+```
+
+It installs `ffmpeg` and `whisper-cpp` (Homebrew), `numpy` and the Node packages.
+Then it downloads the Whisper model **large-v3-turbo q5_0** (574 MB) from the official
+whisper.cpp repo on Hugging Face into `montage/models/`, and verifies its SHA-1.
+The model is not in git because GitHub refuses files over 100 MB.
+
+Requirements: macOS with Homebrew, `python3` and Node 18+.
 
 Music is off by default. Put a track at `remotion/public/music.mp3` and switch it on in the dashboard.
 
