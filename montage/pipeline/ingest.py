@@ -2,7 +2,7 @@
 """Stage 1 — ingest: put every source on ONE master timeline (see montage/DESIGN.md §4).
 
 Master time 0 = the first instant the mic, the phone and (optionally) the screen
-all have content. Every later stage (transcript, edl.json, Remotion) speaks in
+all have content. Every later stage (transcript, edl.json, HyperFrames) speaks in
 master seconds, so nothing downstream has to know about sync offsets again.
 
 Writes to montage/episodes/<episode>/edit/:

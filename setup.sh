@@ -18,8 +18,9 @@ done
 echo "2/4 python: numpy"
 python3 -c "import numpy" 2>/dev/null || python3 -m pip install --user numpy
 
-echo "3/4 node: remotion + dashboard"
-npm --prefix remotion install
+echo "3/4 node 22+ and the pinned HyperFrames CLI"
+node -e 'process.exit(+process.versions.node.split(".")[0] >= 22 ? 0 : 1)' || { echo "Node 22+ is required (HyperFrames)"; exit 1; }
+npx --yes "hyperframes@$(python3 -c 'import sys; sys.path.insert(0, "montage/pipeline"); from compose import HF_VERSION; print(HF_VERSION)')" --version >/dev/null
 
 echo "4/4 whisper model: $MODEL"
 mkdir -p montage/models
@@ -33,4 +34,4 @@ else
   mv "$dest.part" "$dest"
 fi
 
-echo "done — run: npm --prefix remotion run studio"
+echo "done — see README: ingest → transcribe → roughcut → compose → Studio → render"

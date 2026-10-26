@@ -1,6 +1,6 @@
 # نظام المونتاج — Editing System Design
 
-> مسودة 2 · 2026-10-26 · الحلقة 1 اتعملت عليها كتجربة. الهوية: Terminal Builder، والتحكم في المونتاج من الداشبورد (§7).
+> مسودة 3 · 2026-10-26 · الموشن جرافيك والتحرير بقوا بـ HyperFrames (§7). الهوية: Terminal Builder.
 
 `montage.py` في نسخته الحالية بيعمل **تجهيز بس**: بيزامن الصوت مع الفيديو، وينضّف الصوت، ويحط الكاميرا جنب الشاشة. ده **مش مونتاج**.
 المونتاج هو القرارات اللي بعد كده: نقص إيه، ونوري إيه فوق الكلام، ونأكد على إيه بالجرافيك.
@@ -23,8 +23,8 @@
 
 ## 2. الهوية البصرية — Themes
 
-الهوية مش متكتبة في الكود. كل هوية ملف JSON في `remotion/public/themes/<name>.json`، والحلقة بتختار هويتها من `edl.json → "theme"`.
-تقدر تعدّل أي هوية من تبويب «الهوية» في الداشبورد.
+الهوية مش متكتبة في الكود. كل هوية ملف JSON في `montage/themes/<name>.json`، والحلقة بتختار هويتها من `edl.json → "theme"`.
+الخطوط اللي مش مدمجة في HyperFrames لازم ملفها يبقى في `montage/assets/fonts/`.
 
 **`abanoub-terminal`** (الافتراضية): أبانوب طلعت، Full-Stack Developer ومؤسس Huma Volve. اسم الستايل **Terminal Builder**.
 
@@ -73,7 +73,7 @@ motion      spring { damping: 200 } · الدخول 12 فريم · الخروج 
 |---|---|
 | **الصوت (Voice)** | السلسلة الحالية، بس **على تسجيل صح**. -49 dB عند المصدر = ضوضاء ما ينفعش نشيلها من غير ما نخسر في الصوت. القاعدة: صوت الـ Scarlett يبقى مظبوط بحيث الكلام العالي يوصل لحوالي **-18 dBFS** (الحلقة الخضرا تنوّر ونادراً جداً تبقى برتقالي). |
 | **النَفَس والهوا (De-breath)** | `pipeline/voice.py`: بيكتشف الكلام من طاقة الصوت بين 180 و4000 Hz بس، لأن صوت النفس والهوا معظمه تحت المدى ده. أي حتة مفيهاش كلام صوتها بيوطى **18 dB**، مش بيتكتم خالص، علشان صوت الأوضة يفضل موجود. وفيه highpass تاني على 110 Hz. كل الإعدادات في `edl.json → "audio"` وبتتغيّر من الداشبورد. |
-| **المزيكا (Music bed)** | مزيكا ثابتة للبرنامج من `remotion/public/`، على **-28 LUFS** تحت الكلام، وبتوطى أوتوماتيك (Sidechain Ducking) لما الكلام يبدأ. وبتعلى في كروت الفصول والـ Sting. |
+| **المزيكا (Music bed)** | مزيكا ثابتة للبرنامج من `montage/assets/music/`، على **-28 LUFS** تحت الكلام، وبتوطى أوتوماتيك (Sidechain Ducking) لما الكلام يبدأ. وبتعلى في كروت الفصول والـ Sting. |
 | **المؤثرات (SFX)** | Whoosh خفيف مع كل Zoom، و Click مع كل Callout، و Riser قبل الـ Sting. نفس مكتبة المؤثرات القصيرة في كل حلقة، **وما نستخدمش أكتر من 3 أنواع**. |
 | **الـ Master** | Loudness نهائي **-14 LUFS** لليوتيوب والريلز، و True Peak عند -1 dB. (الـ -16 كان معيار البودكاست الصوتي.) |
 
@@ -83,12 +83,12 @@ motion      spring { damping: 200 } · الدخول 12 فريم · الخروج 
  inbox/                     ┌──────────────── Claude ─────────────────┐   ┌─ إنت ─┐
  phone.mov ─┐               │                                          │   │       │
  mic.wav ───┼─► 1 INGEST ─► 2 TRANSCRIBE ─► 3 ROUGH CUT ─► 4 B-ROLL ─► 5 MOTION ─► 6 MIX ─► 7 RENDER+QC
- obs.mp4 ───┘   sync+clean   words.json      edl.json        edl.json     Remotion    ffmpeg   youtube/reel
+ obs.mp4 ───┘   sync+clean   words.json      edl.json        edl.json   HyperFrames   ffmpeg   youtube/reel
                                                │                                         │
                                                └──── proxy review (cut.html) ◄───────────┘
 ```
 
-**الـ `edl.json` هو المصدر الوحيد للحقيقة.** كل مرحلة بتقرا الملف وبتزوّد عليه، وRemotion بيرسم منه. ولو اتغيّر قرار، بنعدّل الـ EDL ونعيد الرندر.
+**الـ `edl.json` هو مصدر الحقيقة لحد مرحلة الـ compose.** كل مرحلة بتقرا الملف وبتزوّد عليه، و `compose.py` بيبني منه مشروع HyperFrames. بعد كده التعديلات بتبقى في Studio على `hf/index.html` (§7).
 
 | # | المرحلة | الأداة | الناتج | مين يقرر |
 |---|---|---|---|---|
@@ -96,9 +96,9 @@ motion      spring { damping: 200 } · الدخول 12 فريم · الخروج 
 | 2 | **Transcribe** | `whisper-cli -ojf -sow -dtw` (large-v3-turbo) | `words.json`: كل كلمة بوقتها، بعد التصحيح اليدوي | Claude يصحح |
 | 3 | **Rough Cut** | Claude بيقرا التفريغ | `edl.json → cuts[]` | Claude يقترح ← **إنت توافق** على `cut.html` |
 | 4 | **B-roll / Screen** | Claude + كشف التغيّر في الشاشة (scene/cursor) | `edl.json → shots[]`: الوش أو الشاشة، ومكان الـ Zoom | Claude |
-| 5 | **Motion Graphics** | Remotion (`EpisodeYouTube`, `EpisodeReel`) | `edl.json → gfx[]`: الفصول، والـ Callouts، والترجمة، والـ Sting | Claude |
+| 5 | **Motion Graphics** | `compose.py` ← HyperFrames (HTML + GSAP)، والتعديل في Studio | `edl.json → gfx[]`: الفصول، والـ Callouts، والترجمة، والـ Sting | Claude |
 | 6 | **Mix** | ffmpeg: ducking و SFX و loudnorm | `mix.wav` | أوتوماتيك |
-| 7 | **Render + QC** | Remotion render + ffmpeg mux | `youtube.mp4` و `reel.mp4` و `thumb.jpg` | **قائمة QC** (§6) |
+| 7 | **Render + QC** | `hyperframes render` + ffmpeg master | `youtube.mp4` و `reel.mp4` و `thumb.jpg` | **قائمة QC** (§6) |
 | (اختياري) | **Finishing** | DaVinci Resolve (ألوان بس) | استيراد الـ EDL كـ FCPXML | إنت |
 
 ### قواعد الـ Rough Cut (مرحلة 3)
@@ -124,24 +124,26 @@ motion      spring { damping: 200 } · الدخول 12 فريم · الخروج 
 1. **الشاشة نفسها** هي الـ B-roll الأساسي، معروضة دايماً جوه الـ Lens، ومعاها Zoom على المنطقة الشغّالة.
    - المنطقة الشغّالة بنعرفها من حاجتين: **مكان الماوس** و**الفرق بين الفريمات**، يعني فين اللي اتغيّر.
 2. **Screenshot Callouts**: لو الكلام عن حاجة على الشاشة، بنثبت الفريم ونحط عليها Callout.
-3. **أصول الهوية**: الشعار والموكابز من `remotion/public/`.
+3. **أصول الهوية**: الشعار والموكابز من `montage/assets/`.
 4. **Stock**: آخر حاجة نلجأ لها، وبس لما الكلام عن حاجة ما ينفعش نصوّرها.
 
 ## 5. هيكل الملفات
 
 ```
 montage/
-  montage.py               مرحلة 1 (موجود)
+  montage.py               الأدوات المشتركة: المزامنة وسلسلة تنضيف الصوت
   pipeline/
-    transcribe.py          مرحلة 2 → words.json
-    roughcut.py            مرحلة 3 → edl.json + cut.html (مراجعة)
-    shots.py               مرحلة 4 → zoom targets
-    mix.py                 مرحلة 6
-    render.py              مرحلة 7 (بيشغّل remotion render ويعمل mux)
-  edl.schema.json          شكل الـ EDL
-remotion/src/episode/
-  tokens.ts  Lens.tsx  SpeakerBubble.tsx  Captions.tsx  ChapterCard.tsx
-  Callout.tsx  Sting.tsx  EpisodeYouTube.tsx  EpisodeReel.tsx
+    ingest.py              مرحلة 1
+    transcribe.py          مرحلة 2: words.json
+    roughcut.py            مرحلة 3: edl.json و cut.html للمراجعة
+    voice.py               إزالة صوت النفس: voice_final.wav
+    compose.py             مرحلة 5: من edl.json لمشروع HyperFrames في episodes/<ep>/hf/
+    render.py              مرحلة 7: hyperframes render، وبعدها الصوت على -14 LUFS
+    serve.py               سيرفر محلي لصفحة cut.html
+  themes/<name>.json       الهوية
+  assets/fonts, sfx, logos, music
+  episodes/<ep>/edit/      الخام بعد المزامنة، و words، و edl
+  episodes/<ep>/hf/        مشروع HyperFrames، وده اللي بتعدّل فيه في Studio
 ```
 
 ## 6. QC قبل ما نقول «خلص»
@@ -155,20 +157,17 @@ remotion/src/episode/
 
 ---
 
-## 7. الداشبورد — Montage Studio
+## 7. التحرير في HyperFrames Studio
 
 ```bash
-npm --prefix remotion run studio      # → http://127.0.0.1:5190
+python3 montage/pipeline/compose.py --episode <ep>
+cd montage/episodes/<ep>/hf && npx hyperframes@0.8.199 preview     # → http://localhost:3002
 ```
 
-- **معاينة حيّة** بـ Remotion Player لنفس الكومبوننت اللي بيترندر، يعني اللي بتشوفه هو اللي هيطلع.
-- **القص**:
-  - دوس على كلمة علشان تروح لها، و Shift مع كلمة تانية علشان تختار جملة. بعد الاختيار تقدر: تقص، أو ترجّع، أو تعمله Keyword، أو تخليه Hook.
-  - لكل قطعة تقدر تقفلها أو تفتحها، وتعدّل بدايتها ونهايتها بالثانية.
-  - السكتات: تقفلها كلها أو تحسبها من جديد.
-- **الجرافيك**: تعدّل أي عنصر (النص، والتوقيت، والمدة)، وتضيف كلمة أو فصل أو قايمة «هنا» عند المؤشر.
-- **اللقطات**: كاميرا أو شاشة، ومعاهم Zoom ومركزه (slider).
-- **الهوية**: الألوان والخطوط والاسم والترجمة والمزيكا والمؤثرات، وكلها بتتحفظ في ملف الـ theme.
-- **الصوت**: إعدادات الـ de-breath، وزرار «طبّق على الصوت» بيشغّل `voice.py`.
-- **احفظ** (Cmd+S): بيكتب `edl.json` ويعمل نسخة احتياطية `edl.backup.json`. وفيه Undo/Redo بـ Cmd+Z.
-- **رندر الفيديو**: بيشغّل `render.py` (voice.py ثم Remotion ثم -14 LUFS)، وفيه شريط تقدّم. بعدها تقدر تفتح النسخة النهائية أو تشوفها في Finder.
+- **`compose.py` بيحوّل `edl.json` لمشروع HyperFrames:**
+  - كل حتة اتسابت في المونتاج بتبقى 3 clips: كاميرا، وشاشة، وصوت. كل clip ليه `data-media-start` بيشاور على مكانه في التسجيل الأصلي.
+  - كل جرافيك (Keyword، أو فصل، أو `whoami`، أو `prompt.txt`، أو ترجمة، أو Sting، أو Outro) بيبقى clip مستقل وحركته بـ GSAP.
+- **Studio** هو الداشبورد دلوقتي: معاينة، وتايملاين تحرّك وتقص وتقسم فيه الـ clips، وتعدّل النصوص، وفيه تاريخ للتعديلات و undo.
+- **بعد ما تعدّل في Studio بيبقى `hf/index.html` هو المصدر.** `compose.py` بيرفض يكتب فوقه. لو عايز ترجع لـ `edl.json` استخدم `--force`، وهو بيحتفظ بنسخة احتياطية `index.<وقت>.html`.
+- **`render.py`** بيعالج الصوت بـ `voice.py`، بعدين `hyperframes render --quality delivery`، وفي الآخر الصوت على -14 LUFS.
+- نسخة HyperFrames متثبتة على **0.8.199** (`HF_VERSION` في `compose.py`) علشان الرندر يطلع نفس النتيجة كل مرة.

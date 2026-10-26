@@ -9,7 +9,7 @@ Each has "on" so the review page can switch it off. Claude writes the editorial
 ones by reading words.json; this script adds the mechanical "pause" cuts (silence
 longer than MAX_PAUSE_S inside kept speech, leaving BREATH_S of air either side),
 snaps every editorial cut edge to the quietest 10 ms within SNAP_S so no cut lands
-inside a syllable, and compiles "segments" — the ordered playlist that Remotion renders.
+inside a syllable, and compiles "segments" — the ordered playlist that compose.py lays out.
 
 Usage:  python3 montage/pipeline/roughcut.py --episode 2026-10-25-episode1
 """

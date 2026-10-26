@@ -10,10 +10,9 @@ montage/inbox/*
 montage/episodes/*
 montage/models/*
 !montage/*/.gitkeep
-remotion/public/episodes/
-remotion/out/
-remotion/public/music.mp3
 
 # OS / editor / python
 .DS_Store
 __pycache__/
+montage/assets/music/*
+!montage/assets/music/.gitkeep

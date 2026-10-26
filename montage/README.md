@@ -25,14 +25,14 @@ python3 montage/montage.py --video ~/Downloads/IMG_1234.MOV --audio montage/inbo
 python3 montage/montage.py --video ~/Downloads/IMG_1234.MOV --audio montage/inbox/mic.wav --screen ~/Movies/obs.mp4 --name "ep1" --jumpcut
 ```
 
-## الداشبورد (تحكم كامل من غير ما تكتب prompt)
+## التحرير (HyperFrames Studio)
 
 ```bash
-npm --prefix remotion run studio
+python3 montage/pipeline/compose.py --episode <الحلقة>
+cd montage/episodes/<الحلقة>/hf && npx hyperframes@0.8.199 preview
 ```
 
-افتح **http://127.0.0.1:5190**. هتلاقي معاينة حيّة للحلقة، وتقدر منها تعدّل القص والجرافيك واللقطات والهوية والصوت. بعد ما تخلص دوس «احفظ»، وبعدها «رندر الفيديو».
-التفاصيل في `DESIGN.md` §7.
+Studio بيفتح على **http://localhost:3002**: فيه معاينة، وتايملاين تقص وتحرّك فيه الـ clips، وتعدّل النصوص. لما تخلص شغّل `render.py`.
 
 ## نصايح للتسجيل
 

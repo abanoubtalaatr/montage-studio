@@ -82,22 +82,24 @@ python3 montage/pipeline/serve.py   # http://127.0.0.1:8765/<folder>/edit/cut.ht
   Restating, «وهكذا», «يعني» stay. A slow dictation stays at 1× (pauses tightened);
   speeding up speech was rejected.
 - Motion graphics are mandatory, not optional: write `shots[]` (talk / screen +
-  zoom/focus) and `gfx[]` into edl.json — `keyword` whenever a key phrase is SAID
-  (e.g. «موبايل أبليكيشن» → it appears on screen), `list`, `chapter`,
-  `lower_third`, `prompt` (typed text appears word by word), `sting`, `outro`.
-  Times are master seconds. Check with stills before the full render:
-  `npx remotion still src/index.ts EpisodeYouTube out.jpg --frame=N` in remotion/.
-- Stage 7: `python3 montage/pipeline/render.py --episode <folder>` → voice.py (de-breath,
-  edl.json "audio") → Remotion `EpisodeYouTube` → `youtube.mp4` at -14 LUFS.
-- **Identity**: theme `abanoub-terminal`
-  (remotion/public/themes/, "Terminal Builder": #0B0D12 / indigo #5B57FF / lime
-  #C6FF3D, IBM Plex Sans Arabic + JetBrains Mono, keywords as `>_` prompts, chapters as
-  git commits). Set `"theme"` in edl.json.
+  zoom/focus/title) and `gfx[]` into edl.json — `keyword` whenever a key phrase is SAID
+  (e.g. «موبايل أبليكيشن» → it appears on screen), `list`, `chapter`, `lower_third`,
+  `prompt` (typed text appears word by word), `sting`, `outro`. Times are master seconds.
+- Stage 5: `python3 montage/pipeline/compose.py --episode <folder>` → a **HyperFrames**
+  project in `episodes/<folder>/hf/` (camera/screen/voice clip per kept segment with
+  `data-media-start`, graphics as HTML + GSAP clips). Check it:
+  `npx hyperframes@0.8.199 check --json` and `snapshot --at ...` inside hf/, then read
+  the contact sheet before saying it's done. Read the `/hyperframes` skill first if loaded.
+- The user edits in **HyperFrames Studio** (`npx hyperframes@0.8.199 preview --background`
+  in hf/ → http://localhost:3002). After Studio edits, hf/index.html is the source of
+  truth: compose refuses to overwrite it; `--force` regenerates and backs it up. Before
+  changing hf/, run `npx hyperframes history` to see what the user changed.
+- Stage 7: `python3 montage/pipeline/render.py --episode <folder>` → voice.py →
+  `hyperframes render --quality delivery` → `youtube.mp4` at -14 LUFS.
+- **Identity**: theme `abanoub-terminal` in `montage/themes/` ("Terminal Builder":
+  #0B0D12 / indigo #5B57FF / lime #C6FF3D; fonts per theme — non-bundled fonts need
+  `montage/assets/fonts/<Name>-{Medium,Bold}.ttf`). Respect the user's own theme edits.
 - **Breathing was audible** after the -14 master: always ship voice_final.wav (voice.py).
-- **Dashboard** (the user wants full control without prompting):
-  `npm --prefix remotion run studio` → http://127.0.0.1:5190 (launch.json
-  "montage-studio"). Live Player preview, cuts/graphics/shots/identity/audio editors,
-  Save (edl.json + backup), Render with progress. Point the user there for small tweaks.
 
 ## 3. Check before saying it's done (read `report.json`)
 
@@ -137,7 +139,7 @@ offer to delete the source files in `montage/inbox/` / `~/Downloads`.
 
 - **Burned-in subtitles**: this ffmpeg has no libass/drawtext, so subtitles
   ship as `.srt` (YouTube upload / CapCut import). Burning Arabic captions
-  into the Reel is a future step via `remotion/`.
+  into the Reel is a future step (a 9:16 HyperFrames composition).
 - **iPhone HDR** (HLG/Dolby Vision) is converted to normal colours through
   VideoToolbox (`scale_vt`); that path skips ffmpeg autorotate, so the
   script rotates by hand — keep both if you touch it.
