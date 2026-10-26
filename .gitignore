@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# secrets — never commit
+.env
+*.env
+
+# media: raw recordings, rendered episodes, Whisper models
+montage/inbox/*
+montage/episodes/*
+montage/models/*
+!montage/*/.gitkeep
+remotion/public/episodes/
+remotion/out/
+remotion/public/music.mp3
+
+# OS / editor / python
+.DS_Store
+__pycache__/

@@ -1,0 +1,48 @@
+{
+  "name": "abanoub-terminal",
+  "label": "Abanoub — Terminal Builder",
+  "colors": {
+    "bg": "#0B0D12",
+    "glow": "#5B57FF",
+    "primary": "#5B57FF",
+    "accent": "#C6FF3D",
+    "text": "#F4F5FF",
+    "muted": "#8D90B8",
+    "card": "#141726",
+    "line": "#262A40",
+    "paper": "#FFFFFF",
+    "ink": "#0B0D12"
+  },
+  "fonts": {
+    "ar": "Tajawal",
+    "mono": "IBM Plex Sans Arabic"
+  },
+  "radius": 18,
+  "grid": true,
+  "identity": {
+    "name": "Abanoub Talaat",
+    "handle": "abanoub@humavolve",
+    "role": "Full-Stack Developer · Founder of Huma Volve",
+    "path": "~/abanoub",
+    "logo": "",
+    "series": "build-with-ai"
+  },
+  "captions": {
+    "show": true,
+    "size": 60,
+    "maxWords": 3
+  },
+  "keywords": {
+    "icons": false,
+    "size": 104
+  },
+  "music": {
+    "on": false,
+    "file": "music.mp3",
+    "volume": 0.05
+  },
+  "sfx": {
+    "on": true,
+    "volume": 0.35
+  }
+}

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مراجعة القص</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F3F7F8; --panel: #FFFFFF; --ink: #0B2A33; --muted: #5B7480; --line: #DCE6EA;
+  --primary: #1791B6; --deep: #0B5E75; --accent: #FFC857;
+  --k-slate: #8A6FD1; --k-false_start: #E0607E; --k-repeat: #E58A3C; --k-filler: #D9A400;
+  --k-setup: #6C7A89; --k-pause: #9FB3BC; --k-speed: #1791B6; --k-hook: #FFC857;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #041E26; --panel: #0A2E3A; --ink: #E8F3F6; --muted: #8FB0BB; --line: #164453;
+    --k-pause: #4F6E79;
+  }
+}
+:root[data-theme="dark"] { --bg: #041E26; --panel: #0A2E3A; --ink: #E8F3F6; --muted: #8FB0BB; --line: #164453; --k-pause: #4F6E79; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Tajawal, system-ui, sans-serif; }
+.num, time { font-family: Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+header { padding: 20px 24px 8px; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; }
+h1 { margin: 0; font-size: 24px; font-weight: 800; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 2px 12px; font-size: 14px; color: var(--muted); }
+.chip b { color: var(--ink); }
+main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; padding: 12px 24px 40px; }
+@media (max-width: 960px) { main { grid-template-columns: 1fr; padding: 12px 16px 40px; } header { padding: 16px 16px 8px; } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 16px; }
+.player { position: sticky; top: 12px; align-self: start; }
+@media (max-width: 960px) { .player { position: static; } }
+video { width: 100%; border-radius: 14px; background: #000; display: block; aspect-ratio: 16/9; }
+.controls { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 12px; padding: 6px 14px; cursor: pointer; }
+button.primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; }
+.seg button[aria-pressed="true"] { background: var(--deep); color: #fff; }
+.badge { font-size: 14px; color: var(--muted); margin-inline-start: auto; }
+.badge b { color: var(--ink); }
+.timeline { position: relative; height: 34px; margin-top: 14px; background: var(--bg); border-radius: 8px; cursor: pointer; overflow: hidden; direction: ltr; }
+.timeline .blk { position: absolute; top: 0; bottom: 0; opacity: .85; }
+.timeline .blk.off { opacity: .18; }
+.timeline .blk.speed { background: repeating-linear-gradient(45deg, var(--k-speed) 0 6px, transparent 6px 10px); }
+.timeline .blk.hook { top: auto; height: 6px; background: var(--k-hook); }
+.timeline .head { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-inline-end: 5px; vertical-align: -1px; }
+h2 { font-size: 18px; margin: 0 0 10px; font-weight: 800; }
+.transcript { font-size: 19px; line-height: 2.1; }
+.w { cursor: pointer; border-radius: 6px; padding: 1px 2px; }
+.w:hover { background: var(--bg); }
+.w.cut { text-decoration: line-through; text-decoration-thickness: 2px; opacity: .45; }
+.w.speed { color: var(--primary); font-style: italic; }
+.w.hook { box-shadow: inset 0 -3px 0 var(--accent); }
+.w.now { background: var(--accent); color: #0B2A33; opacity: 1; }
+.decisions { display: grid; gap: 10px; margin-top: 20px; }
+.dec { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 14px; border-inline-start: 5px solid var(--kc); }
+.dec.off { opacity: .55; }
+.dec input { width: 20px; height: 20px; margin-top: 4px; accent-color: var(--primary); }
+.dec .kind { font-weight: 700; }
+.dec .reason { grid-column: 2 / 4; color: var(--muted); font-size: 15px; }
+.dec .said { grid-column: 2 / 4; font-size: 15px; }
+.dec .said s { opacity: .7; }
+details summary { cursor: pointer; color: var(--muted); }
+textarea { width: 100%; min-height: 90px; font: inherit; border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: var(--bg); color: var(--ink); }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--deep); color: #fff; padding: 8px 18px; border-radius: 12px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>مراجعة القص · <span id="ep" class="num"></span></h1>
+  <div class="stats" id="stats"></div>
+</header>
+<main>
+  <section class="card player">
+    <video id="v" src="proxy.mp4" preload="auto" playsinline></video>
+    <div class="controls">
+      <button class="primary" id="play">▶ تشغيل</button>
+      <div class="seg" role="group" aria-label="وضع العرض">
+        <button id="mEdit" aria-pressed="true">بعد القص</button>
+        <button id="mOrig" aria-pressed="false">الأصل</button>
+      </div>
+      <span class="badge" id="where"></span>
+    </div>
+    <div class="timeline" id="tl"><div class="head" id="head"></div></div>
+    <div class="legend" id="legend"></div>
+  </section>
+  <section>
+    <div class="card">
+      <h2>الكلام</h2>
+      <div class="transcript" id="tx"></div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h2>القرارات</h2>
+      <div style="color:var(--muted);font-size:15px">شيل العلامة من أي قرار علشان يرجع زي ما كان. زرار «جرّب» بيشغّل القطعة دي بعد القص.</div>
+      <div class="decisions" id="dec"></div>
+      <h2 style="margin-top:20px">ملاحظاتك</h2>
+      <textarea id="notes" placeholder="مثلاً: سيب «وهكذا» التانية، أو قص من «طيب» لحد «النهاردة»…"></textarea>
+      <div class="controls"><button class="primary" id="copy">انسخ القرارات وابعتها لـ Claude</button></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const DATA = /*__DATA__*/null;
+const KIND = {
+  slate: 'كواليس / تصفيق', false_start: 'بداية غلط', repeat: 'تكرار', filler: 'حشو',
+  setup: 'كلام كواليس', pause: 'سكتة', speed: 'تسريع', hook: 'Hook — البداية'
+};
+const edl = DATA.edl, words = DATA.words, dur = edl.duration_s;
+const store = 'cut-review:' + DATA.episode;
+const items = [
+  ...edl.hook.map(x => ({...x, type: 'hook', kind: 'hook'})),
+  ...edl.cuts.map(x => ({...x, type: 'cut'})),
+  ...edl.speed.map(x => ({...x, type: 'speed', kind: 'speed'})),
+];
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(store) || '{}'); } catch (e) {}
+items.forEach(x => { if (saved.on && x.id in saved.on) x.on = saved.on[x.id]; });
+const $ = id => document.getElementById(id);
+const fmt = t => { t = Math.max(0, t); const m = Math.floor(t / 60), s = t - m * 60; return m + ':' + s.toFixed(1).padStart(4, '0'); };
+const kc = k => `var(--k-${k})`;
+
+function persist() {
+  try { localStorage.setItem(store, JSON.stringify({on: Object.fromEntries(items.map(x => [x.id, x.on])), notes: $('notes').value})); } catch (e) {}
+}
+
+// Same compilation as roughcut.py compile_segments().
+function compile() {
+  const on = items.filter(x => x.on);
+  const holes = on.filter(x => x.type === 'cut').map(x => [x.start, x.end]).sort((a, b) => a[0] - b[0]);
+  const speeds = on.filter(x => x.type === 'speed');
+  const segs = on.filter(x => x.type === 'hook').map(h => ({start: h.start, end: h.end, rate: 1, mute: false, role: 'hook'}));
+  let spans = [], cur = 0;
+  for (const [a, b] of holes) { if (b <= cur) continue; if (a > cur) spans.push([cur, a]); cur = Math.max(cur, b); }
+  if (cur < dur) spans.push([cur, dur]);
+  for (const [a, b] of spans.filter(([a, b]) => b - a > 0.04)) {
+    const edges = [...new Set([a, b, ...speeds.flatMap(s => [s.start, s.end]).filter(x => x > a && x < b)])].sort((p, q) => p - q);
+    for (let i = 0; i < edges.length - 1; i++) {
+      const sp = speeds.find(s => s.start <= edges[i] && edges[i + 1] <= s.end);
+      segs.push({start: edges[i], end: edges[i + 1], rate: sp ? sp.rate : 1, mute: !!(sp && sp.voice === 'mute'), role: sp ? 'speed' : 'body'});
+    }
+  }
+  return segs;
+}
+let segs = compile();
+const editedLen = () => segs.reduce((s, g) => s + (g.end - g.start) / g.rate, 0);
+
+function stats() {
+  const cuts = items.filter(x => x.type === 'cut' && x.on);
+  $('stats').innerHTML =
+    `<span class="chip">الأصل <b class="num">${fmt(dur)}</b></span>` +
+    `<span class="chip">بعد القص <b class="num">${fmt(editedLen())}</b></span>` +
+    `<span class="chip">قطعات <b class="num">${cuts.length}</b></span>` +
+    `<span class="chip">سكتات اتشالت <b class="num">${cuts.filter(c => c.kind === 'pause').length}</b></span>`;
+}
+
+function timeline() {
+  const tl = $('tl');
+  tl.querySelectorAll('.blk').forEach(b => b.remove());
+  for (const x of items) {
+    const b = document.createElement('div');
+    b.className = 'blk ' + (x.type === 'speed' ? 'speed' : x.type === 'hook' ? 'hook' : '') + (x.on ? '' : ' off');
+    b.style.left = (x.start / dur * 100) + '%';
+    b.style.width = Math.max(0.25, (x.end - x.start) / dur * 100) + '%';
+    if (x.type === 'cut') b.style.background = kc(x.kind);
+    b.title = KIND[x.kind] + ' · ' + fmt(x.start) + '–' + fmt(x.end);
+    tl.insertBefore(b, $('head'));
+  }
+  const used = [...new Set(items.map(x => x.kind))];
+  $('legend').innerHTML = used.map(k => `<span><i style="background:${kc(k)}"></i>${KIND[k]}</span>`).join('');
+}
+
+function wordState(w) {
+  const mid = (w.start + w.end) / 2;
+  const hit = t => items.find(x => x.type === t && x.on && x.start <= mid && mid < x.end);
+  return {cut: hit('cut'), speed: hit('speed'), hook: hit('hook')};
+}
+function transcript() {
+  $('tx').innerHTML = '';
+  words.forEach((w, i) => {
+    const s = document.createElement('span');
+    const st = wordState(w);
+    s.className = 'w' + (st.cut ? ' cut' : '') + (st.speed ? ' speed' : '') + (st.hook ? ' hook' : '');
+    if (st.cut) s.style.textDecorationColor = kc(st.cut.kind);
+    s.textContent = w.w;
+    s.dataset.i = i;
+    s.title = fmt(w.start) + (st.cut ? ' · ' + KIND[st.cut.kind] : '');
+    s.onclick = () => seekSource(w.start - 0.3);
+    $('tx').append(s, ' ');
+  });
+}
+
+function saidIn(a, b) {
+  return words.filter(w => (w.start + w.end) / 2 >= a && (w.start + w.end) / 2 < b).map(w => w.w).join(' ');
+}
+function decisions() {
+  const box = $('dec');
+  box.innerHTML = '';
+  const main = items.filter(x => x.kind !== 'pause');
+  const pauses = items.filter(x => x.kind === 'pause');
+  for (const x of main) box.append(card(x));
+  if (pauses.length) {
+    const d = document.createElement('details');
+    const on = pauses.filter(p => p.on).length;
+    d.innerHTML = `<summary>${pauses.length} سكتة طويلة اتقصّرت لـ <span class="num">0.15</span> ثانية (<span class="num">${on}</span> شغّالة) — اضغط للتفاصيل</summary>`;
+    const all = document.createElement('div');
+    all.className = 'controls';
+    const t = document.createElement('button');
+    t.textContent = on ? 'سيب كل السكتات زي ما هي' : 'قصّر كل السكتات';
+    t.onclick = () => { pauses.forEach(p => p.on = !on); changed(); };
+    all.append(t);
+    d.append(all);
+    const g = document.createElement('div');
+    g.className = 'decisions';
+    pauses.forEach(p => g.append(card(p)));
+    d.append(g);
+    box.append(d);
+  }
+}
+function card(x) {
+  const el = document.createElement('div');
+  el.className = 'dec' + (x.on ? '' : ' off');
+  el.style.setProperty('--kc', kc(x.kind));
+  const said = x.kind === 'pause' ? '' : saidIn(x.start, x.end);
+  const label = x.type === 'speed' ? `تسريع <span class="num">${x.rate}×</span>` + (x.voice === 'mute' ? ' · الصوت مكتوم' : '') : KIND[x.kind];
+  el.innerHTML = `<input type="checkbox" ${x.on ? 'checked' : ''} aria-label="تفعيل">
+    <div><span class="kind">${label}</span> · <time>${fmt(x.start)} → ${fmt(x.end)}</time> <span class="num" style="color:var(--muted)">(${(x.end - x.start).toFixed(1)}s)</span></div>
+    <button>▶ جرّب</button>
+    <div class="reason"></div>
+    ${said ? `<div class="said">${x.type === 'cut' ? '<s></s>' : '<span></span>'}</div>` : ''}`;
+  el.querySelector('.reason').textContent = x.reason || '';
+  if (said) el.querySelector('.said > *').textContent = '«' + said + '»';
+  el.querySelector('input').onchange = e => { x.on = e.target.checked; changed(); };
+  el.querySelector('button').onclick = () => tryIt(x);
+  return el;
+}
+function changed() { segs = compile(); persist(); stats(); timeline(); transcript(); decisions(); }
+
+// ---- player
+const v = $('v');
+let mode = 'edit', idx = 0, stopAt = null, playing = false;
+function applySeg() {
+  const g = segs[idx];
+  v.playbackRate = g.rate;
+  v.muted = g.mute;
+}
+function seekSource(t) {
+  if (mode === 'edit') {
+    let i = segs.findIndex(g => g.role !== 'hook' && g.end > t);
+    if (i < 0) i = segs.length - 1;
+    idx = i;
+    v.currentTime = Math.max(segs[i].start, t);
+    applySeg();
+  } else {
+    v.currentTime = Math.max(0, t);
+  }
+  tick(true);
+}
+function tryIt(x) {
+  setMode('edit');
+  const from = x.type === 'hook' ? x.start : x.start - 2.5;
+  if (x.type === 'hook') { idx = segs.findIndex(g => g.role === 'hook'); v.currentTime = x.start; applySeg(); }
+  else seekSource(from);
+  stopAt = {src: x.end + 2.5};
+  play();
+}
+function play() { v.play(); playing = true; $('play').textContent = '❚❚ إيقاف'; loop(); }
+function pause() { v.pause(); playing = false; $('play').textContent = '▶ تشغيل'; stopAt = null; }
+$('play').onclick = () => {
+  if (playing) return pause();
+  if (mode === 'edit' && (idx >= segs.length - 1 && v.currentTime >= segs[segs.length - 1].end - 0.05)) { idx = 0; v.currentTime = segs[0].start; }
+  if (mode === 'edit' && v.currentTime < segs[idx].start) v.currentTime = segs[idx].start;
+  if (mode === 'edit') applySeg();
+  play();
+};
+function setMode(m) {
+  mode = m;
+  $('mEdit').setAttribute('aria-pressed', m === 'edit');
+  $('mOrig').setAttribute('aria-pressed', m === 'orig');
+  v.playbackRate = 1; v.muted = false;
+  if (m === 'edit') seekSource(v.currentTime);
+}
+$('mEdit').onclick = () => setMode('edit');
+$('mOrig').onclick = () => setMode('orig');
+$('tl').onclick = e => {
+  const r = $('tl').getBoundingClientRect();
+  seekSource((e.clientX - r.left) / r.width * dur);
+};
+function loop() {
+  if (!playing) return;
+  if (mode === 'edit') {
+    const g = segs[idx];
+    if (v.currentTime >= g.end - 0.01) {
+      if (idx + 1 >= segs.length) { pause(); }
+      else {
+        idx++;
+        const n = segs[idx];
+        if (Math.abs(n.start - g.end) > 0.02 || v.currentTime > n.start + 0.05) v.currentTime = n.start;
+        applySeg();
+      }
+    }
+    if (stopAt && segs[idx].role !== 'hook' && v.currentTime >= stopAt.src) pause();
+  }
+  if (v.ended) pause();
+  tick();
+  requestAnimationFrame(loop);
+}
+let lastWord = -1;
+function tick() {
+  const t = v.currentTime;
+  $('head').style.left = (t / dur * 100) + '%';
+  let label;
+  if (mode === 'edit' && segs[idx]) {
+    let e = 0;
+    for (let i = 0; i < idx; i++) e += (segs[i].end - segs[i].start) / segs[i].rate;
+    e += Math.max(0, t - segs[idx].start) / segs[idx].rate;
+    const role = segs[idx].role === 'hook' ? ' · Hook' : segs[idx].role === 'speed' ? ` · ⏩ ${segs[idx].rate}×` : '';
+    label = `<span class="num"><b>${fmt(e)}</b> / ${fmt(editedLen())}</span>${role}`;
+  } else label = `<span class="num"><b>${fmt(t)}</b> / ${fmt(dur)}</span> · الأصل`;
+  $('where').innerHTML = label;
+  const wi = words.findIndex(w => w.start <= t && t < w.end);
+  if (wi !== lastWord) {
+    document.querySelectorAll('.w.now').forEach(n => n.classList.remove('now'));
+    if (wi >= 0) document.querySelector(`.w[data-i="${wi}"]`)?.classList.add('now');
+    lastWord = wi;
+  }
+}
+v.addEventListener('timeupdate', () => { if (!playing) tick(); });
+
+$('copy').onclick = async () => {
+  const payload = {
+    episode: DATA.episode,
+    off: items.filter(x => !x.on).map(x => x.id),
+    on: items.filter(x => x.on).map(x => x.id),
+    edited_s: +editedLen().toFixed(1),
+    notes: $('notes').value.trim(),
+  };
+  const text = 'cut review ' + JSON.stringify(payload);
+  try { await navigator.clipboard.writeText(text); toast('اتنسخ — الصقه في المحادثة'); }
+  catch (e) { prompt('انسخ النص ده:', text); }
+};
+function toast(s) { const t = $('toast'); t.textContent = s; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+$('notes').value = saved.notes || '';
+$('notes').oninput = persist;
+
+$('ep').textContent = DATA.episode;
+document.title = 'مراجعة القص · ' + DATA.episode;
+changed();
+v.addEventListener('loadedmetadata', () => { idx = 0; v.currentTime = segs[0].start; applySeg(); tick(); });
+</script>
+</body>
+</html>

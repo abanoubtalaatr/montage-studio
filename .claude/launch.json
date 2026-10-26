@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "montage-studio",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "remotion", "run", "studio"],
+      "port": 5190
+    }
+  ]
+}
